@@ -1,0 +1,39 @@
+{
+	"info": {
+		"_postman_id": "000f734e-ad1f-492d-90b5-83dca5632b60",
+		"name": "Spring AI Chat Client",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21205305"
+	},
+	"item": [
+		{
+			"name": "GET > Chat",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/chat?value=Will we ever go to Mars?&voice=Elon Musk",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"chat"
+					],
+					"query": [
+						{
+							"key": "value",
+							"value": "Will we ever go to Mars?"
+						},
+						{
+							"key": "voice",
+							"value": "Elon Musk"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
