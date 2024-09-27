@@ -19,7 +19,7 @@ The integration enables businesses and developers to create smart chatbots or vi
    The Spring ecosystem supports microservices architecture, making it simple to integrate the chat client with other services (like databases, user authentication, and third-party APIs), facilitating a cohesive application environment.
    <br><br>
 
-## 2. How a Spring AI Chat CLient Implementation Works
+## 2. How a Spring AI Chat Client Implementation Works
 
 With the provided example and guidelines, you can effectively implement a <strong>Spring AI Chat Client</strong> in your <strong>Spring Boot</strong> projects.
 
@@ -35,3 +35,95 @@ This Spring Framework dependency will provide us with all the necessary function
 
 [![](https://img.shields.io/badge/OpenAI-8A2BE2)]()
 The OpenAI Spring dependency is a library that simplifies the integration of OpenAI's API within a Spring application.
+
+### 2.2 Set Application Properties
+To use the OpenAI API, you need to provide your API key. You can do this by adding the following configuration to your `application.yml` file.
+<i>If you don't have an API key, you can sign up for one at the <a href="https://platform.openai.com/">OpenAI website</a>.</i>
+
+```properties
+spring:
+  application:
+    name: spring-ai-chat-client
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4o-mini
+            max-tokens: 100
+```
+
+The <b>OPEANAI_API_KEY</b> is an environment variable that you can set in your system or in your IDE. This way, you can keep your API key secure and avoid exposing it in your codebase.
+
+In this example the gpt-4o-mini `model` is used, but you can choose a different model based on your requirements. The gpt-4o-mini model is the affordable and intelligent small model for fast, lightweight tasks.<br>
+<a href="https://openai.com/api/pricing/">See all model specifications and pricing</a><br>
+The `max-tokens` parameter specifies the maximum number of tokens that the model can generate in a single response.
+
+### 2.3 Create the Chat Client Configuration
+To interact with the OpenAI API, you need to create a configuration class that will provide the necessary beans to your application.
+
+```java
+@Configuration
+class Config {
+
+   @Bean
+   ChatClient chatClient(ChatClient.Builder builder) {
+      return builder.defaultSystem("You are a friendly chat bot that answers question in the voice of a {voice}")
+              .build();
+   }
+}
+```
+
+The `ChatClient` bean will be used to interact with the OpenAI API. The `ChatClient.Builder` class is provided by the OpenAI Spring library and allows you to configure the chat client with the necessary settings.
+
+In this example configuration, we set the default system message that the chat client will use when starting a conversation. You can customize this message to suit your application's needs.
+
+### 2.4 Create the Chat Client REST Controller
+Now, let's create a REST controller that will expose an endpoint to interact with the chat client.
+
+```java
+@RestController
+class ChatClientController {
+    private final ChatClient chatClient;
+
+    ChatClientController(ChatClient chatClient) {
+        this.chatClient = chatClient;
+    }
+
+    @GetMapping("/chat")
+    Map<String, String> completion(@RequestParam(value = "message", defaultValue = "Tell me a joke") String message, String voice) {
+        return Map.of("completion",
+                chatClient.prompt()
+                        .system(sp -> sp.param("voice", voice))
+                        .user(message)
+                        .call()
+                        .content());
+    }
+}
+```
+
+In this controller, we inject the `ChatClient` bean and create a `GET` endpoint `/chat` that accepts a query parameter `message`. The `message` parameter is the user's input, and the `voice` parameter is used to customize the chatbot's response.
+
+The `completion` method calls the `chatClient.prompt()` method to start a conversation. We then set the system parameters using the `system` method and pass the user's message using the `user` method. Finally, we call the `call` method to get the chatbot's response.
+
+### 3 Running the Spring AI Chat Client Application
+You can now run your Spring Boot application and access the `/chat` endpoint to interact with the chat client.
+
+- To test the <b>REST endpoint</b>, a tool like <b>Postman</b> can be used to send <b>HTTP requests</b>.
+- A Postman collection is added within the repository `src/main/resources/postman/collection-to-import.json`
+
+[![](https://img.shields.io/badge/GET%20-chat%20message-green)]()<br/>
+<small>Endpoint:</small> `http://localhost:8080/chat`<br/>
+<small>Params:</small><br/>
+- `message` (optional): The user's message to the chatbot.<br/>
+- `voice` (optional): The voice in which the chatbot responds.<br/>
+
+![02-postman-get-chat](https://github.com/jeffrey-spaan/spring-ai-chat-client/blob/main/images/02-postman-get-chat.png)
+
+## Let's Stay Connected
+
+If you have any questions in regard to this repository and/or documentation, please do reach out.
+
+Don't forget to:
+- <b>Star</b> the [repository](https://github.com/jeffrey-spaan/spring-ai-chat-client)
+- [Follow me](https://github.com/jeffrey-spaan) for more interesting repositories!
